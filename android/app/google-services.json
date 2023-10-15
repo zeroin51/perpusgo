@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "63862180399",
+    "project_id": "perpusgo-824d1",
+    "storage_bucket": "perpusgo-824d1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:63862180399:android:7b03869bd9f53148b394da",
+        "android_client_info": {
+          "package_name": "com.example.perpusgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "63862180399-dpgv8jnbnbj4c94mse2628467iac3kns.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.perpusgo",
+            "certificate_hash": "ae70016e6aad07c925d2f0c4664036a00c3ca00b"
+          }
+        },
+        {
+          "client_id": "63862180399-dj15254c1ecpjgult8v2niuou8pu8l85.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCi0An4i0TnelsLkaJCmnV6N-ycSSzuD74"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "63862180399-dj15254c1ecpjgult8v2niuou8pu8l85.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "63862180399-bi4aakoe7h51lrkd558kmkfs0q03h8l5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.perpusgo.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
