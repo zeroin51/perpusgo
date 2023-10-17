@@ -2,78 +2,119 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:perpusgo/dashboard/editpage.dart';
 
-class DetailBuku extends StatelessWidget {
+class DetailBukuAdmin extends StatelessWidget {
   final String bukuId;
 
-  DetailBuku(this.bukuId);
-
-  Future<void> _editBuku(BuildContext context) async {
-    // Navigasi ke halaman edit dengan membawa ID buku
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => EditBuku(bukuId: '',),
-    ));
-  }
-
-  Future<void> _deleteBuku(BuildContext context) async {
-    // Hapus buku dari database
-    await FirebaseFirestore.instance.collection('Buku').doc(bukuId).delete();
-    // Kembali ke halaman sebelumnya (BukuListAdmin)
-    Navigator.of(context).pop();
-  }
+  DetailBukuAdmin({required this.bukuId});
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference _reference = FirebaseFirestore.instance.collection('Buku');
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail Buku'),
-        actions: [
-          IconButton(
-            onPressed: () => _editBuku(context),
-            icon: Icon(Icons.edit),
-          ),
-          IconButton(
-            onPressed: () => _deleteBuku(context),
-            icon: Icon(Icons.delete),
-          ),
-        ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection('Buku').doc(bukuId).get(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
-          }
-
-          if (snapshot.hasData) {
-            DocumentSnapshot documentSnapshot = snapshot.data;
-            Map bukuData = documentSnapshot.data() as Map;
-
-            return ListView(
-              padding: EdgeInsets.all(16.0),
-              children: [
-                Text('Judul: ${bukuData['judul']}'),
-                Text('Penulis: ${bukuData['penulis']}'),
-                Text('Tahun Terbit: ${bukuData['tahun']}'),
-                SizedBox(height: 16.0),
-                bukuData.containsKey('images')
-                    ? Image.network(
-                        '${bukuData['images']}',
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(
-                        width: 200,
-                        height: 200,
-                        color: Colors.grey, // Warna latar belakang default jika tidak ada gambar
-                      ),
-              ],
-            );
+        future: _reference.doc(bukuId).get(),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+            }
+            if (snapshot.hasData) {
+              var bukuData = snapshot.data!.data() as Map<String, dynamic>;
+              return SingleChildScrollView(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Image.network(
+                      bukuData['images'],
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(height: 16.0),
+                    Text(
+                      'Judul: ${bukuData['judul']}',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Penulis: ${bukuData['penulis']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Text(
+                      'Tahun Terbit: ${bukuData['tahun']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              );
+            }
           }
 
           return Center(child: CircularProgressIndicator());
         },
       ),
+      persistentFooterButtons: <Widget>[
+        ElevatedButton(
+          onPressed: () {
+            // Tambahkan logika untuk tombol Update di sini
+            // Contoh: Navigasi ke halaman EditPage dengan membawa bukuId
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => EditBuku(bukuId: bukuId), // Ganti dengan kelas EditPage yang sesuai
+              ),
+            );
+          },
+          child: Text('Update'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // Tambahkan logika untuk tombol Delete di sini
+            // Contoh: Tampilkan konfirmasi sebelum menghapus buku
+            _showDeleteConfirmationDialog(context);
+          },
+          child: Text('Delete'),
+        ),
+      ],
     );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Hapus'),
+          content: Text('Apakah Anda yakin ingin menghapus buku ini?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                // Tambahkan logika penghapusan buku di sini
+                _deleteBuku();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Tutup dialog konfirmasi
+              },
+              child: Text('Hapus'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog konfirmasi
+              },
+              child: Text('Batal'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteBuku() {
+    // Tambahkan logika penghapusan buku sesuai dengan bukuId
+    // Misalnya:
+    FirebaseFirestore.instance.collection('Buku').doc(bukuId).delete();
+    // Setelah penghapusan, Anda dapat mengarahkan pengguna ke halaman lain atau melanjutkan tindakan lain yang diperlukan.
   }
 }

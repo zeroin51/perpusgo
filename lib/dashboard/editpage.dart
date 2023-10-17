@@ -130,7 +130,7 @@ class _EditBukuState extends State<EditBuku> {
                   await _uploadImage();
                   if (imageUrl.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Change Image First')));
+                        SnackBar(content: Text('Masukkan Gambar terlebih dahulu!')));
                     return;
                   }
 
@@ -153,6 +153,9 @@ class _EditBukuState extends State<EditBuku> {
                         content: Text('Book data has been updated.'),
                       ),
                     );
+
+                    // Kembali ke halaman sebelumnya (BukuListAdmin)
+                    Navigator.of(context).pop();
                   }
                 },
                 child: Text('Update'),

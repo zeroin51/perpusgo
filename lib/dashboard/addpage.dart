@@ -130,40 +130,52 @@ class _AddBukuState extends State<AddBuku> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  await _uploadImage();
-                  print('Image uploaded successfully. URL: $imageUrl');
-                  if (imageUrl.isEmpty) {
+                  // Validasi input data
+                  if (_imageBytes == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Upload Foto Sampul Dahulu')));
-
+                    SnackBar(content: Text('Upload Foto Sampul Dahulu')),
+                    );
                     return;
                   }
 
-                  if (key.currentState!.validate()) {
-                    String judulBuku = _controllerJudul.text;
-                    String penulisBuku = _controllerPenulis.text;
-                    String tahunBuku = _controllerTahun.text;
+                  if (!key.currentState!.validate()) {
+                    return;
+                  }
 
-                    // Create a Map of data
+                  String judulBuku = _controllerJudul.text;
+                  String penulisBuku = _controllerPenulis.text;
+                  String tahunBuku = _controllerTahun.text;
+
+                  // Pastikan semua data telah diisi
+                  if (judulBuku.isEmpty || penulisBuku.isEmpty || tahunBuku.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Semua data harus diisi')),
+                    );
+                    return;
+                  }
+
+                  // Upload gambar dan tambahkan data buku ke Firestore
+                  await _uploadImage();
+                  if (imageUrl.isNotEmpty) {
                     Map<String, String> dataToSend = {
                       'judul': judulBuku,
                       'penulis': penulisBuku,
                       'tahun': tahunBuku,
                       'images': imageUrl,
                     };
-
-                    // Add a new item
                     await _reference.add(dataToSend);
-
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Data buku telah ditambahkan.'),
                       ),
                     );
+
+                    // Kembali ke halaman utama (BukuListAdmin)
+                    Navigator.of(context).pop();
                   }
                 },
                 child: Text('Submit'),
-              ),
+              )
             ],
           ),
         ),

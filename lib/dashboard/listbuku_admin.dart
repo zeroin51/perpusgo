@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:perpusgo/page/detailbuku.dart';
+import 'package:perpusgo/dashboard/detailbuku_admin.dart';
+import '../service/bukuid.dart'; // Impor FirestoreService
 import 'package:perpusgo/dashboard/addpage.dart';
 
 class BukuListAdmin extends StatelessWidget {
@@ -11,9 +12,9 @@ class BukuListAdmin extends StatelessWidget {
   CollectionReference _reference =
       FirebaseFirestore.instance.collection('Buku');
 
-  //_reference.get()  ---> returns Future<QuerySnapshot>
-  //_reference.snapshots()--> Stream<QuerySnapshot> -- realtime updates
   late Stream<QuerySnapshot> _stream;
+
+  FirestoreService _firestoreService = FirestoreService(); // Buat instance FirestoreService
 
   @override
   Widget build(BuildContext context) {
@@ -24,27 +25,20 @@ class BukuListAdmin extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: _stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          //Check error
           if (snapshot.hasError) {
-            return Center(child: Text('Some error occurred ${snapshot.error}'));
+            return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
           }
 
-          //Check if data arrived
           if (snapshot.hasData) {
-            //get the data
             QuerySnapshot querySnapshot = snapshot.data;
             List<QueryDocumentSnapshot> documents = querySnapshot.docs;
-
-            //Convert the documents to Maps
             List<Map> items = documents.map((e) => e.data() as Map).toList();
 
-            //Display the list
             return ListView.builder(
               itemCount: items.length,
               itemBuilder: (BuildContext context, int index) {
-                //Get the item at this index
                 Map thisItem = items[index];
-                //REturn the widget for the list items
+
                 return ListTile(
                   title: Text('${thisItem['judul']}'),
                   subtitle: Text(
@@ -59,28 +53,39 @@ class BukuListAdmin extends StatelessWidget {
                       : Container(
                           width: 80,
                           height: 80,
-                          color: Colors.grey, // Warna latar belakang default jika tidak ada gambar
+                          color: Colors.grey,
                         ),
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DetailBuku(thisItem['id'])));
+                  onTap: () async {
+                    // Panggil FirestoreService untuk mendapatkan bukuId
+                    String judul = thisItem['judul'];
+                    String? bukuId = await _firestoreService.getBukuIdByJudul(judul);
+                    
+                    if (bukuId != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DetailBukuAdmin(bukuId: bukuId)
+                        )
+                      );
+                    } else {
+                      // Handle the case where bukuId is null (buku not found)
+                      // You can display an error message or take any other action.
+                    }
                   },
                 );
               },
             );
           }
 
-          //Show loader
           return Center(child: CircularProgressIndicator());
         },
-      ), //Display a list // Add a FutureBuilder
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddBuku()));
         },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        tooltip: 'Tambah',
+        child: Icon(Icons.add),
       ),
     );
   }

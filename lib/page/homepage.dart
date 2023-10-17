@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:perpusgo/page/listbuku.dart';
+import 'package:perpusgo/page/loginpage.dart';
 
 
 class PerpustakaanHomePage extends StatefulWidget {
@@ -13,6 +14,16 @@ class _PerpustakaanHomePageState extends State<PerpustakaanHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('PerpusGo'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Ikonya bisa disesuaikan dengan keinginan Anda
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => LoginPage(), // Ganti dengan kelas EditPage yang sesuai
+              ),
+            );
+          }
+        ),
       ),
       body: Center(
         child: Column(

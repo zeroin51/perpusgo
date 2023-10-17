@@ -1,55 +1,70 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:perpusgo/page/listbuku.dart';
 
-class DetailBuku extends StatefulWidget {
-  DetailBuku(this.itemId, {Key? key}) : super(key: key);
+class DetailBuku extends StatelessWidget {
+  final String bukuId;
 
-  final String itemId;
-
-  @override
-  _DetailBukuState createState() => _DetailBukuState();
-}
-
-class _DetailBukuState extends State<DetailBuku> {
-  final CollectionReference _reference = FirebaseFirestore.instance.collection('Buku');
-  late Future<DocumentSnapshot> _futureData;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureData = _reference.doc(widget.itemId).get();
-  }
+  DetailBuku({required this.bukuId});
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference _reference = FirebaseFirestore.instance.collection('Buku');
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail Buku'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Ikonya bisa disesuaikan dengan keinginan Anda
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BukuListPage(), // Ganti dengan kelas EditPage yang sesuai
+              ),
+            );
+          }
+        ),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: _futureData,
+        future: _reference.doc(bukuId).get(),
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+            }
+            if (snapshot.hasData) {
+              var bukuData = snapshot.data!.data() as Map<String, dynamic>;
+              return SingleChildScrollView(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Image.network(
+                      bukuData['images'],
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(height: 16.0),
+                    Text(
+                      'Judul: ${bukuData['judul']}',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Penulis: ${bukuData['penulis']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Text(
+                      'Tahun Terbit: ${bukuData['tahun']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              );
+            }
           }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData) {
-            return Center(child: Text('Data tidak ditemukan.'));
-          }
-
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-
-          return Column(
-            children: [
-              Text('${data['judul']}'),
-              Text('${data['penulis']}'),
-              Text('${data['tahun']}'),
-            ],
-          );
+          return Center(child: CircularProgressIndicator());
         },
       ),
     );

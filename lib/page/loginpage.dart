@@ -77,6 +77,13 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: _signInWithEmailAndPassword,
               child: Text('Login'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                // Arahkan pengguna ke halaman beranda
+                Navigator.of(context).pushReplacementNamed('/home'); // Ganti '/home' dengan rute halaman beranda Anda
+              },
+              child: Text('Login as Guest'),
+            ),
           ],
         ),
       ),
