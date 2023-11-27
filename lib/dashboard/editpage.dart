@@ -24,9 +24,54 @@ class _EditBukuState extends State<EditBuku> {
   final firebase_storage.Reference _storageRef =
       firebase_storage.FirebaseStorage.instance.ref('images');
 
-  Uint8List? _imageBytes; // Untuk menyimpan byte array gambar
+  Uint8List? _imageBytes; // To store the image byte array
+  String imageUrl = ''; // Update imageUrl
 
-  String imageUrl = ''; // Memperbarui imageUrl
+  @override
+  void initState() {
+    super.initState();
+    // Fetch existing data from Firestore when the widget is initialized
+    _fetchExistingData();
+  }
+
+  Future<void> _fetchExistingData() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Buku')
+          .doc(widget.bukuId)
+          .get();
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          _controllerJudul.text = data['judul'] ?? '';
+          _controllerPenulis.text = data['penulis'] ?? '';
+          _controllerTahun.text = data['tahun'] ?? '';
+          imageUrl = data['images'] ?? '';
+          // Fetch and display image if imageUrl is not empty
+          if (imageUrl.isNotEmpty) {
+            _loadImage();
+          }
+        });
+      }
+    } catch (error) {
+      print('Error fetching existing data: $error');
+    }
+  }
+
+  Future<void> _loadImage() async {
+  try {
+    // Load image from Firebase Storage based on imageUrl
+    firebase_storage.Reference imageRef = storage.refFromURL(imageUrl);
+    final imageBytes = await imageRef.getData();
+    setState(() {
+      _imageBytes = imageBytes;
+    });
+  } catch (error) {
+    print('Error loading image: $error');
+  }
+}
+
+
 
   Future<void> _uploadImage() async {
     try {
@@ -64,8 +109,7 @@ class _EditBukuState extends State<EditBuku> {
 
   GlobalKey<FormState> key = GlobalKey();
 
-  CollectionReference _reference =
-      FirebaseFirestore.instance.collection('Buku');
+  CollectionReference _reference = FirebaseFirestore.instance.collection('Buku');
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +198,7 @@ class _EditBukuState extends State<EditBuku> {
                       ),
                     );
 
-                    // Kembali ke halaman sebelumnya (BukuListAdmin)
+                    // Go back to the previous page (BukuListAdmin)
                     Navigator.of(context).pop();
                   }
                 },
