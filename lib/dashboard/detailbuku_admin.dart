@@ -44,13 +44,11 @@ class DetailBukuAdmin extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    ClipRRect(
-                      child: Image.network(
-                        bukuData['images'],
-                        width: double.infinity,
-                        height: 300,
-                        fit: BoxFit.cover,
-                      ),
+                    Image.network(
+                      bukuData['images'],
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.contain,
                     ),
                     SizedBox(height: 16.0),
                     Text(

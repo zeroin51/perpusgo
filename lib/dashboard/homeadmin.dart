@@ -1,8 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:perpusgo/dashboard/listbuku_admin.dart';
 import 'package:perpusgo/dashboard/addpage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminHomePage extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      await _auth.signOut();
+
+      // Hapus status login dari SharedPreferences
+      _clearLoginStatus();
+
+      // Arahkan kembali ke halaman login
+      Navigator.of(context).pushReplacementNamed('/login');
+    } catch (e) {
+      print('Terjadi kesalahan saat logout: $e');
+    }
+  }
+
+  // Hapus status login dari SharedPreferences
+  Future<void> _clearLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('isAdminLoggedIn');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,6 +42,13 @@ class AdminHomePage extends StatelessWidget {
               height: 30,
               color: Colors.white,
             ),
+          ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              // Panggil _signOut dengan mengirimkan context
+              _signOut(context);
+            },
           ),
         ],
       ),

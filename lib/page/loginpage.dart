@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,6 +11,24 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Check login status when the page is initialized
+    _checkLoginStatus();
+  }
+
+  // Check login status and navigate to the home page if already logged in
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isAdminLoggedIn = prefs.getBool('isAdminLoggedIn') ?? false;
+
+    if (isAdminLoggedIn) {
+      // If admin is already logged in, navigate to the admin home page
+      Navigator.of(context).pushReplacementNamed('/admin');
+    }
+  }
 
   Future<void> _signInWithEmailAndPassword() async {
     try {
@@ -29,13 +48,15 @@ class _LoginPageState extends State<LoginPage> {
           print('Login berhasil: ${user.email}');
 
           if (user.email == 'admin@admin.com') {
-            // Jika email adalah email admin, arahkan ke halaman admin
-            Navigator.of(context).pushReplacementNamed(
-                '/admin'); // Ganti '/admin' dengan rute halaman admin Anda
+            // Jika email adalah email admin, simpan status login admin
+            _saveAdminLoginStatus();
+            // Arahkan ke halaman admin
+            Navigator.of(context).pushReplacementNamed('/admin');
           } else {
-            // Jika bukan akun admin, arahkan ke halaman beranda
-            Navigator.of(context).pushReplacementNamed(
-                '/home'); // Ganti '/home' dengan rute halaman beranda Anda
+            // Jika bukan akun admin, simpan status login pengguna biasa
+            _saveUserLoginStatus();
+            // Arahkan ke halaman beranda
+            Navigator.of(context).pushReplacementNamed('/home');
           }
         } else {
           // Login gagal, tampilkan pesan kesalahan atau tindakan yang sesuai
@@ -49,6 +70,24 @@ class _LoginPageState extends State<LoginPage> {
       // Handle error
       print('Terjadi kesalahan: $e');
     }
+  }
+
+  // Simpan status login admin
+  Future<void> _saveAdminLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isAdminLoggedIn', true);
+  }
+
+  // Simpan status login pengguna biasa
+  Future<void> _saveUserLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isAdminLoggedIn', false);
+  }
+
+  // Hapus status login dari SharedPreferences
+  Future<void> _clearLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('isAdminLoggedIn');
   }
 
   @override
@@ -90,8 +129,7 @@ class _LoginPageState extends State<LoginPage> {
             TextButton(
               onPressed: () {
                 // Arahkan pengguna ke halaman beranda
-                Navigator.of(context).pushReplacementNamed(
-                    '/home'); // Ganti '/home' dengan rute halaman beranda Anda
+                Navigator.of(context).pushReplacementNamed('/home');
               },
               child: Text('Login as Guest'),
             ),

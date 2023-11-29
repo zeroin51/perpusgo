@@ -3,6 +3,7 @@ import 'package:perpusgo/dashboard/homeadmin.dart';
 import 'package:perpusgo/page/homepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:perpusgo/page/listbuku.dart';
+import 'package:perpusgo/page/loginpage.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -24,8 +25,10 @@ class PerpustakaanApp extends StatelessWidget {
       ),
       home: PerpustakaanHomePage(),
       routes: {
+      '/homepage': (context) => PerpustakaanHomePage(), // Rute untuk PerpustakaanHomePage
       '/home': (context) => BukuListPage(), // Rute untuk PerpustakaanHomePage
       '/admin': (context) => AdminHomePage(), // Rute untuk PerpustakaanHomePage
+      '/login': (context) => LoginPage(),
       // Rute lainnya
     },
     );
