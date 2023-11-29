@@ -39,17 +39,6 @@ class _BukuListPageState extends State<BukuListPage> {
             );
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: BukuSearchDelegate(_stream),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [

@@ -34,7 +34,7 @@ class _BukuListAdminState extends State<BukuListAdmin> {
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/home');
+              Navigator.pushReplacementNamed(context, '/homepage');
             },
           ),
         ],
@@ -135,9 +135,18 @@ class _BukuListAdminState extends State<BukuListAdmin> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddBuku()));
+        },
+        tooltip: 'Tambah',
+        child: Icon(Icons.add),
+        backgroundColor: Colors.redAccent,
+      ),
     );
   }
 }
+
 
 class BukuSearchDelegate extends SearchDelegate {
   final Stream<QuerySnapshot> items;

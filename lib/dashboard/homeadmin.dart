@@ -34,15 +34,6 @@ class AdminHomePage extends StatelessWidget {
         title: Text('Admin Dashboard'),
         backgroundColor: Colors.redAccent,
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              'assets/perpus.jpeg',
-              width: 30,
-              height: 30,
-              color: Colors.white,
-            ),
-          ),
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {

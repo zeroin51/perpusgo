@@ -42,14 +42,15 @@ class PerpustakaanHomePage extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                'Jl. Contoh No. 123, Kota Contoh',
+                'Jl. Melayang No. 68, Kota Saranjana',
                 style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16),
               Text(
                 'PerpusGo menyediakan berbagai koleksi buku yang dapat diakses oleh masyarakat. '
-                'Bergabunglah dengan kegiatan-kegiatan menarik yang kami adakan secara rutin!',
+                'Bergabunglah dengan kegiatan-kegiatan menarik yang kami adakan secara rutin! '
+                'Klik tombol Login untuk melihat koleksi buku yang tersedia',
                 style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
