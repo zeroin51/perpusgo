@@ -72,110 +72,147 @@ class _AddBukuState extends State<AddBuku> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Tambah Buku'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () async {
+              // Validasi input data
+              if (_imageBytes == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Upload Foto Sampul Dahulu')),
+                );
+                return;
+              }
+
+              if (!key.currentState!.validate()) {
+                return;
+              }
+
+              String judulBuku = _controllerJudul.text;
+              String penulisBuku = _controllerPenulis.text;
+              String tahunBuku = _controllerTahun.text;
+
+              // Pastikan semua data telah diisi
+              if (judulBuku.isEmpty || penulisBuku.isEmpty || tahunBuku.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Semua data harus diisi')),
+                );
+                return;
+              }
+
+              // Upload gambar dan tambahkan data buku ke Firestore
+              await _uploadImage();
+              if (imageUrl.isNotEmpty) {
+                Map<String, String> dataToSend = {
+                  'judul': judulBuku,
+                  'penulis': penulisBuku,
+                  'tahun': tahunBuku,
+                  'images': imageUrl,
+                };
+                await _reference.add(dataToSend);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Data buku telah ditambahkan.'),
+                  ),
+                );
+
+                // Kembali ke halaman utama (BukuListAdmin)
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: key,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (_imageBytes != null)
-                Image.memory(
-                  _imageBytes!,
-                  width: 200,
-                  height: 200,
-                  fit: BoxFit.cover,
-                )
-              else
-                Text('No image selected'),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[300],
+                    ),
+                    child: _imageBytes != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image.memory(
+                              _imageBytes!,
+                              width: 200,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Icon(
+                            Icons.camera_alt,
+                            size: 80,
+                            color: Colors.grey[600],
+                          ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: _pickImage,
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _pickImage,
-                child: Text('Pick Image'),
+                child: Text('Upload Gambar Sampul'),
               ),
               TextFormField(
                 controller: _controllerJudul,
-                decoration: InputDecoration(hintText: 'Masukkan Judul Buku'),
+                decoration: InputDecoration(
+                  labelText: 'Judul Buku',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return 'Masukkan Judul Buku Dahulu';
                   }
-
                   return null;
                 },
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _controllerPenulis,
-                decoration: InputDecoration(hintText: 'Masukkan Penulis Buku'),
+                decoration: InputDecoration(
+                  labelText: 'Penulis Buku',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return 'Masukkan Penulis Buku Dahulu';
                   }
-
                   return null;
                 },
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _controllerTahun,
-                decoration:
-                    InputDecoration(hintText: 'Masukkan Tahun Buku Terbit'),
+                decoration: InputDecoration(
+                  labelText: 'Tahun Terbit',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return 'Masukkan Tahun Buku Terbit Dahulu';
                   }
-
                   return null;
                 },
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Validasi input data
-                  if (_imageBytes == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Upload Foto Sampul Dahulu')),
-                    );
-                    return;
-                  }
-
-                  if (!key.currentState!.validate()) {
-                    return;
-                  }
-
-                  String judulBuku = _controllerJudul.text;
-                  String penulisBuku = _controllerPenulis.text;
-                  String tahunBuku = _controllerTahun.text;
-
-                  // Pastikan semua data telah diisi
-                  if (judulBuku.isEmpty || penulisBuku.isEmpty || tahunBuku.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Semua data harus diisi')),
-                    );
-                    return;
-                  }
-
-                  // Upload gambar dan tambahkan data buku ke Firestore
-                  await _uploadImage();
-                  if (imageUrl.isNotEmpty) {
-                    Map<String, String> dataToSend = {
-                      'judul': judulBuku,
-                      'penulis': penulisBuku,
-                      'tahun': tahunBuku,
-                      'images': imageUrl,
-                    };
-                    await _reference.add(dataToSend);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Data buku telah ditambahkan.'),
-                      ),
-                    );
-
-                    // Kembali ke halaman utama (BukuListAdmin)
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: Text('Submit'),
-              )
             ],
           ),
         ),

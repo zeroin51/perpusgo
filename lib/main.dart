@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:perpusgo/dashboard/homeadmin.dart';
 import 'package:perpusgo/page/homepage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:perpusgo/page/loginpage.dart';
+import 'package:perpusgo/page/listbuku.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -17,13 +17,14 @@ class PerpustakaanApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Perpustakaan Mobile',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
-      home: LoginPage(),
+      home: PerpustakaanHomePage(),
       routes: {
-      '/home': (context) => PerpustakaanHomePage(), // Rute untuk PerpustakaanHomePage
+      '/home': (context) => BukuListPage(), // Rute untuk PerpustakaanHomePage
       '/admin': (context) => AdminHomePage(), // Rute untuk PerpustakaanHomePage
       // Rute lainnya
     },

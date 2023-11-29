@@ -20,7 +20,8 @@ class BukuListAdmin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Buku'),
+        title: Text('Daftar Buku'),
+        backgroundColor: Colors.red,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _stream,
@@ -39,38 +40,42 @@ class BukuListAdmin extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 Map thisItem = items[index];
 
-                return ListTile(
-                  title: Text('${thisItem['judul']}'),
-                  subtitle: Text(
-                      'Penulis: ${thisItem['penulis']}, Tahun Terbit: ${thisItem['tahun']}'),
-                  leading: thisItem.containsKey('images')
-                      ? Image.network(
-                          '${thisItem['images']}',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          color: Colors.grey,
-                        ),
-                  onTap: () async {
-                    // Panggil FirestoreService untuk mendapatkan bukuId
-                    String judul = thisItem['judul'];
-                    String? bukuId = await _firestoreService.getBukuIdByJudul(judul);
-                    
-                    if (bukuId != null) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => DetailBukuAdmin(bukuId: bukuId)
-                        )
-                      );
-                    } else {
-                      // Handle the case where bukuId is null (buku not found)
-                      // You can display an error message or take any other action.
-                    }
-                  },
+                return Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    title: Text('${thisItem['judul']}'),
+                    subtitle: Text(
+                        'Penulis: ${thisItem['penulis']}, Tahun Terbit: ${thisItem['tahun']}'),
+                    leading: thisItem.containsKey('images')
+                        ? Image.network(
+                            '${thisItem['images']}',
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            width: 80,
+                            height: 80,
+                            color: Colors.grey,
+                          ),
+                    onTap: () async {
+                      // Panggil FirestoreService untuk mendapatkan bukuId
+                      String judul = thisItem['judul'];
+                      String? bukuId = await _firestoreService.getBukuIdByJudul(judul);
+                      
+                      if (bukuId != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DetailBukuAdmin(bukuId: bukuId)
+                          )
+                        );
+                      } else {
+                        // Handle the case where bukuId is null (buku not found)
+                        // You can display an error message or take any other action.
+                      }
+                    },
+                  ),
                 );
               },
             );
@@ -86,6 +91,7 @@ class BukuListAdmin extends StatelessWidget {
         },
         tooltip: 'Tambah',
         child: Icon(Icons.add),
+        backgroundColor: Colors.redAccent,
       ),
     );
   }

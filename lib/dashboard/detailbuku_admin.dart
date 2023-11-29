@@ -9,18 +9,33 @@ class DetailBukuAdmin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference _reference = FirebaseFirestore.instance.collection('Buku');
+    CollectionReference _reference =
+        FirebaseFirestore.instance.collection('Buku');
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail Buku'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EditBuku(bukuId: bukuId),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: _reference.doc(bukuId).get(),
-        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+              return Center(
+                  child: Text('Terjadi kesalahan: ${snapshot.error}'));
             }
             if (snapshot.hasData) {
               var bukuData = snapshot.data!.data() as Map<String, dynamic>;
@@ -29,21 +44,26 @@ class DetailBukuAdmin extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Image.network(
-                      bukuData['images'],
-                      width: double.infinity,
-                      height: 300,
-                      fit: BoxFit.contain,
+                    ClipRRect(
+                      child: Image.network(
+                        bukuData['images'],
+                        width: double.infinity,
+                        height: 300,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     SizedBox(height: 16.0),
                     Text(
                       'Judul: ${bukuData['judul']}',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
+                    SizedBox(height: 8.0),
                     Text(
                       'Penulis: ${bukuData['penulis']}',
                       style: TextStyle(fontSize: 18),
                     ),
+                    SizedBox(height: 8.0),
                     Text(
                       'Tahun Terbit: ${bukuData['tahun']}',
                       style: TextStyle(fontSize: 18),
@@ -60,23 +80,12 @@ class DetailBukuAdmin extends StatelessWidget {
       persistentFooterButtons: <Widget>[
         ElevatedButton(
           onPressed: () {
-            // Tambahkan logika untuk tombol Update di sini
-            // Contoh: Navigasi ke halaman EditPage dengan membawa bukuId
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => EditBuku(bukuId: bukuId), // Ganti dengan kelas EditPage yang sesuai
-              ),
-            );
-          },
-          child: Text('Update'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // Tambahkan logika untuk tombol Delete di sini
-            // Contoh: Tampilkan konfirmasi sebelum menghapus buku
             _showDeleteConfirmationDialog(context);
           },
-          child: Text('Delete'),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.red,
+          ),
+          child: Text('Hapus'),
         ),
       ],
     );
@@ -90,19 +99,24 @@ class DetailBukuAdmin extends StatelessWidget {
           title: Text('Konfirmasi Hapus'),
           content: Text('Apakah Anda yakin ingin menghapus buku ini?'),
           actions: <Widget>[
-            TextButton(
+            ElevatedButton(
               onPressed: () async {
-                // Tambahkan logika penghapusan buku di sini
                 _deleteBuku();
                 Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Tutup dialog konfirmasi
+                Navigator.of(context).pop();
               },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red,
+              ),
               child: Text('Hapus'),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog konfirmasi
+                Navigator.of(context).pop();
               },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.grey,
+              ),
               child: Text('Batal'),
             ),
           ],
@@ -112,9 +126,6 @@ class DetailBukuAdmin extends StatelessWidget {
   }
 
   void _deleteBuku() {
-    // Tambahkan logika penghapusan buku sesuai dengan bukuId
-    // Misalnya:
     FirebaseFirestore.instance.collection('Buku').doc(bukuId).delete();
-    // Setelah penghapusan, Anda dapat mengarahkan pengguna ke halaman lain atau melanjutkan tindakan lain yang diperlukan.
   }
 }

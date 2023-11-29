@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perpusgo/page/detailbuku.dart';
 import 'package:perpusgo/page/homepage.dart';
-import '../service/bukuid.dart'; // Impor FirestoreService
+import '../service/bukuid.dart';
 
 class BukuListPage extends StatelessWidget {
   BukuListPage({Key? key}) : super(key: key) {
@@ -14,22 +14,22 @@ class BukuListPage extends StatelessWidget {
 
   late Stream<QuerySnapshot> _stream;
 
-  FirestoreService _firestoreService = FirestoreService(); // Buat instance FirestoreService
+  FirestoreService _firestoreService = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Buku'),
+        title: Text('Daftar Buku'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // Ikonya bisa disesuaikan dengan keinginan Anda
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => PerpustakaanHomePage(), // Ganti dengan kelas EditPage yang sesuai
+                builder: (context) => PerpustakaanHomePage(),
               ),
             );
-          }
+          },
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -40,7 +40,7 @@ class BukuListPage extends StatelessWidget {
           }
 
           if (snapshot.hasData) {
-            QuerySnapshot querySnapshot = snapshot.data;
+            QuerySnapshot querySnapshot = snapshot.data!;
             List<QueryDocumentSnapshot> documents = querySnapshot.docs;
             List<Map> items = documents.map((e) => e.data() as Map).toList();
 
@@ -49,38 +49,47 @@ class BukuListPage extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 Map thisItem = items[index];
 
-                return ListTile(
-                  title: Text('${thisItem['judul']}'),
-                  subtitle: Text(
-                      'Penulis: ${thisItem['penulis']}, Tahun Terbit: ${thisItem['tahun']}'),
-                  leading: thisItem.containsKey('images')
-                      ? Image.network(
-                          '${thisItem['images']}',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          color: Colors.grey,
-                        ),
-                  onTap: () async {
-                    // Panggil FirestoreService untuk mendapatkan bukuId
-                    String judul = thisItem['judul'];
-                    String? bukuId = await _firestoreService.getBukuIdByJudul(judul);
-                    
-                    if (bukuId != null) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => DetailBuku(bukuId: bukuId)
-                        )
-                      );
-                    } else {
-                      // Handle the case where bukuId is null (buku not found)
-                      // You can display an error message or take any other action.
-                    }
-                  },
+                return Card(
+                  elevation: 5,
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(16),
+                    title: Text('${thisItem['judul']}'),
+                    subtitle: Text(
+                      'Penulis: ${thisItem['penulis']}, Tahun Terbit: ${thisItem['tahun']}',
+                    ),
+                    leading: thisItem.containsKey('images')
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              '${thisItem['images']}',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Container(
+                            width: 80,
+                            height: 80,
+                            color: Colors.grey,
+                          ),
+                    onTap: () async {
+                      String judul = thisItem['judul'];
+                      String? bukuId =
+                          await _firestoreService.getBukuIdByJudul(judul);
+
+                      if (bukuId != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DetailBuku(bukuId: bukuId),
+                          ),
+                        );
+                      } else {
+                        // Handle the case where bukuId is null
+                        // You can display an error message or take any other action.
+                      }
+                    },
+                  ),
                 );
               },
             );

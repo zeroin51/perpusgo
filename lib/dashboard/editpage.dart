@@ -59,19 +59,17 @@ class _EditBukuState extends State<EditBuku> {
   }
 
   Future<void> _loadImage() async {
-  try {
-    // Load image from Firebase Storage based on imageUrl
-    firebase_storage.Reference imageRef = storage.refFromURL(imageUrl);
-    final imageBytes = await imageRef.getData();
-    setState(() {
-      _imageBytes = imageBytes;
-    });
-  } catch (error) {
-    print('Error loading image: $error');
+    try {
+      // Load image from Firebase Storage based on imageUrl
+      firebase_storage.Reference imageRef = storage.refFromURL(imageUrl);
+      final imageBytes = await imageRef.getData();
+      setState(() {
+        _imageBytes = imageBytes;
+      });
+    } catch (error) {
+      print('Error loading image: $error');
+    }
   }
-}
-
-
 
   Future<void> _uploadImage() async {
     try {
@@ -116,31 +114,96 @@ class _EditBukuState extends State<EditBuku> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Buku'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () async {
+              await _uploadImage();
+              if (imageUrl.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Masukkan Gambar terlebih dahulu!')),
+                );
+                return;
+              }
+
+              if (key.currentState!.validate()) {
+                String judulBuku = _controllerJudul.text;
+                String penulisBuku = _controllerPenulis.text;
+                String tahunBuku = _controllerTahun.text;
+
+                Map<String, String> dataToUpdate = {
+                  'judul': judulBuku,
+                  'penulis': penulisBuku,
+                  'tahun': tahunBuku,
+                  'images': imageUrl,
+                };
+
+                await _reference.doc(widget.bukuId).update(dataToUpdate);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Book data has been updated.'),
+                  ),
+                );
+
+                // Go back to the previous page (BukuListAdmin)
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: key,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (_imageBytes != null)
-                Image.memory(
-                  _imageBytes!,
-                  width: 200,
-                  height: 200,
-                  fit: BoxFit.cover,
-                )
-              else
-                Text('No image selected'),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: Text('Change Image'),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[300],
+                    ),
+                    child: _imageBytes != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image.memory(
+                              _imageBytes!,
+                              width: 200,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Icon(
+                            Icons.camera_alt,
+                            size: 80,
+                            color: Colors.grey[600],
+                          ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: _pickImage,
+                    ),
+                  ),
+                ],
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _controllerJudul,
-                decoration: InputDecoration(hintText: 'Masukkan Judul Buku'),
+                decoration: InputDecoration(
+                  labelText: 'Judul Buku',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return 'Masukkan Judul Buku Dahulu';
@@ -148,9 +211,13 @@ class _EditBukuState extends State<EditBuku> {
                   return null;
                 },
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _controllerPenulis,
-                decoration: InputDecoration(hintText: 'Masukkan Penulis Buku'),
+                decoration: InputDecoration(
+                  labelText: 'Penulis Buku',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return 'Masukkan Penulis Buku Dahulu';
@@ -158,51 +225,19 @@ class _EditBukuState extends State<EditBuku> {
                   return null;
                 },
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _controllerTahun,
-                decoration:
-                    InputDecoration(hintText: 'Masukkan Tahun Buku Terbit'),
+                decoration: InputDecoration(
+                  labelText: 'Tahun Terbit',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return 'Masukkan Tahun Buku Terbit Dahulu';
                   }
                   return null;
                 },
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await _uploadImage();
-                  if (imageUrl.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Masukkan Gambar terlebih dahulu!')));
-                    return;
-                  }
-
-                  if (key.currentState!.validate()) {
-                    String judulBuku = _controllerJudul.text;
-                    String penulisBuku = _controllerPenulis.text;
-                    String tahunBuku = _controllerTahun.text;
-
-                    Map<String, String> dataToUpdate = {
-                      'judul': judulBuku,
-                      'penulis': penulisBuku,
-                      'tahun': tahunBuku,
-                      'images': imageUrl,
-                    };
-
-                    await _reference.doc(widget.bukuId).update(dataToUpdate);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Book data has been updated.'),
-                      ),
-                    );
-
-                    // Go back to the previous page (BukuListAdmin)
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: Text('Update'),
               ),
             ],
           ),

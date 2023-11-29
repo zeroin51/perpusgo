@@ -1,63 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:perpusgo/page/listbuku.dart';
 import 'package:perpusgo/page/loginpage.dart';
 
-
-class PerpustakaanHomePage extends StatefulWidget {
-  @override
-  _PerpustakaanHomePageState createState() => _PerpustakaanHomePageState();
-}
-
-class _PerpustakaanHomePageState extends State<PerpustakaanHomePage> {
+class PerpustakaanHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('PerpusGo'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back), // Ikonya bisa disesuaikan dengan keinginan Anda
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => LoginPage(), // Ganti dengan kelas EditPage yang sesuai
-              ),
-            );
-          }
-        ),
+        centerTitle: true,
+        actions: [
+          // Tombol login di AppBar
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+            child: Text(
+              'Login',
+              style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+            ),
+          ),
+        ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.library_books,
-              size: 100.0,
-              color: Colors.blue,
-            ),
-            SizedBox(height: 20.0),
-            Text(
-              'Selamat datang di Perpustakaan Mobile',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            SizedBox(height: 20.0),
-            SizedBox(
-                height:
-                    20.0), // Tambahkan jarak antara tombol "Jelajahi Buku" dan tombol "Login"
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil<dynamic>(
-                  context,
-                  MaterialPageRoute<dynamic>(
-                    builder: (BuildContext context) => BukuListPage(),
-                  ),
-                  (route) => false, //To disable back feature set to false
-                );
-              },
-              child: Text('List Buku'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Image.asset(
+                'assets/perpus.jpeg',
+                height: 300,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Selamat datang di PerpusGo!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Jl. Contoh No. 123, Kota Contoh',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'PerpusGo menyediakan berbagai koleksi buku yang dapat diakses oleh masyarakat. '
+                'Bergabunglah dengan kegiatan-kegiatan menarik yang kami adakan secara rutin!',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: PerpustakaanHomePage(),
+  ));
 }
